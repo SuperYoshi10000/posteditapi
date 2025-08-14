@@ -25,12 +25,12 @@ app.get("/", (req, res) => {
     });
 });
 
-app.get("/public-key", (req, res) => {
-    res.send({
-        message: "Public key retrieved",
-        publicKey: PUBLIC_KEY
-    });
-});
+// app.get("/public-key", (req, res) => {
+//     res.send({
+//         message: "Public key retrieved",
+//         publicKey: PUBLIC_KEY
+//     });
+// });
 
 app.get("/users", (req, res) => {
     const users: User[] = [];
