@@ -12,10 +12,12 @@
   "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.15.5",
     "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "node-postgres": "^0.6.2",
