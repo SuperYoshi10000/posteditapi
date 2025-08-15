@@ -13,6 +13,7 @@ const db = new pg.Pool({
     database: process.env.DB_NAME || "postedit",
     password: process.env.DB_PASSWORD || undefined,
     port: Number(process.env.DB_PORT || 5432),
+    ssl: process.env.DB_SSL === "false" ? false : Boolean(process.env.DB_SSL) || false,
 });
 let client: pg.PoolClient;
 
