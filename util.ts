@@ -67,6 +67,8 @@ export async function initDatabase(client: pg.PoolClient) {
             FOREIGN KEY (commenter) REFERENCES users(id) ON DELETE CASCADE
         );
     `).catch(err => console.error("Error creating user_comments table", err));
+
+    console.log("Database initialized");
 }
 
 export function dbError(res: Response, err: any) {
