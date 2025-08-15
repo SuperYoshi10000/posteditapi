@@ -6,7 +6,7 @@ info:
 paths:
   /:
     get:
-      summary: ""
+      summary: API Root
       description: ""
       responses:
         '200':
@@ -18,7 +18,7 @@ paths:
 
   /users:
     get:
-      summary: ""
+      summary: List Users
       description: ""
       tags: [Users]
       responses:
@@ -31,7 +31,7 @@ paths:
         
   /users/{name}:
     get:
-      summary: ""
+      summary: Get User by Name
       description: ""
       tags: [Users]
       parameters:
@@ -56,7 +56,7 @@ paths:
         
   /users/register:
     post:
-      summary: ""
+      summary: "Register a new user"
       description: ""
       tags: [Account Management]
       requestBody:
@@ -87,7 +87,7 @@ paths:
         
   /users/login:
     post:
-      summary: ""
+      summary: "Log in a user (get JWT token)"
       description: ""
       tags: [Account Management]
       requestBody:
@@ -116,7 +116,7 @@ paths:
         
   /users/{name}/reset-jwt-token:
     post:
-      summary: ""
+      summary: "Reset JWT token"
       description: ""
       tags: [Account Management]
       parameters:
@@ -160,7 +160,7 @@ paths:
         
   /users/{name}/set-password:
     post:
-      summary: ""
+      summary: "Set user password"
       description: ""
       tags: [Account Management]
       parameters:
@@ -206,7 +206,7 @@ paths:
         
   /users/{name}/delete:
     delete:
-      summary: ""
+      summary: "Delete user account"
       description: ""
       tags: [Account Management]
       parameters:
@@ -250,7 +250,7 @@ paths:
         
   /users/{name}/profile:
     get:
-      summary: ""
+      summary: "Get user profile"
       description: ""
       tags: [Profile]
       parameters:
@@ -276,7 +276,7 @@ paths:
         
   /users/{name}/profile/create:
     post:
-      summary: ""
+      summary: "Create user profile"
       description: ""
       tags: [Profile]
       parameters:
@@ -326,7 +326,7 @@ paths:
         
   /users/{name}/profile/edit:
     put:
-      summary: ""
+      summary: "Edit user profile"
       description: ""
       tags: [Profile]
       parameters:
@@ -376,7 +376,7 @@ paths:
         
   /users/{name}/profile/delete:
     delete:
-      summary: ""
+      summary: "Delete user profile"
       description: ""
       tags: [Profile]
       parameters:
@@ -413,7 +413,7 @@ paths:
         
   /users/{name}/user-comments:
     get:
-      summary: ""
+      summary: "List comments on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -438,7 +438,7 @@ paths:
         
   /users/{name}/user-comments/create:
     post:
-      summary: ""
+      summary: "Post a comment on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -476,7 +476,7 @@ paths:
         
   /users/{name}/user-comments/{id}:
     get:
-      summary: ""
+      summary: "Get a comment on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -506,7 +506,7 @@ paths:
         
   /users/{name}/user-comments/{id}/reply:
     post:
-      summary: ""
+      summary: "Reply to a comment on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -549,7 +549,7 @@ paths:
         
   /users/{name}/user-comments/{id}/replies:
     get:
-      summary: ""
+      summary: "List replies to a comment on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -579,7 +579,7 @@ paths:
         
   /users/{name}/user-comments/{id}/edit:
     put:
-      summary: ""
+      summary: "Edit a comment on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -628,7 +628,7 @@ paths:
         
   /users/{name}/user-comments/{id}/delete:
     delete:
-      summary: ""
+      summary: "Delete a comment on a user profile"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -670,7 +670,7 @@ paths:
         
   /users/{name}/post-comments:
     get:
-      summary: ""
+      summary: "List comments posted by a user"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -695,7 +695,7 @@ paths:
         
   /users/{name}/post-comments/{id}:
     get:
-      summary: ""
+      summary: "List comments on a post by a user"
       description: ""
       tags: [Profile, Comments]
       parameters:
@@ -725,7 +725,7 @@ paths:
         
   /users/{name}/posts:
     get:
-      summary: ""
+      summary: "List posts by a user"
       description: ""
       tags: [Posts]
       parameters:
@@ -750,7 +750,7 @@ paths:
         
   /users/{name}/posts/create:
     post:
-      summary: ""
+      summary: "Create a new post for a user"
       description: ""
       tags: [Posts]
       parameters:
@@ -790,7 +790,7 @@ paths:
         
   /users/{name}/posts/{id}:
     get:
-      summary: ""
+      summary: "Get a post by a user"
       description: ""
       tags: [Posts]
       parameters:
@@ -820,7 +820,7 @@ paths:
         
   /users/{name}/posts/{id}/edit:
     put:
-      summary: ""
+      summary: "Edit a post by a user"
       description: ""
       tags: [Posts]
       parameters:
@@ -871,7 +871,7 @@ paths:
         
   /users/{name}/posts/{id}/delete:
     delete:
-      summary: ""
+      summary: "Delete a post by a user"
       description: ""
       tags: [Posts]
       parameters:
@@ -913,7 +913,7 @@ paths:
         
   /users/{name}/posts/{id}/comments:
     get:
-      summary: ""
+      summary: "List comments on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -943,7 +943,7 @@ paths:
         
   /users/{name}/posts/{id}/comments/create:
     post:
-      summary: ""
+      summary: "Post a comment on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -986,7 +986,7 @@ paths:
         
   /users/{name}/posts/{id}/comments/{commentId}:
     get:
-      summary: ""
+      summary: "Get a comment on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -1021,7 +1021,7 @@ paths:
         
   /users/{name}/posts/{id}/comments/{commentId}/reply:
     post:
-      summary: ""
+      summary: "Reply to a comment on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -1069,7 +1069,7 @@ paths:
         
   /users/{name}/posts/{id}/comments/{commentId}/replies:
     get:
-      summary: ""
+      summary: "List replies to a comment on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -1104,7 +1104,7 @@ paths:
         
   /users/{name}/posts/{id}/comments/{commentId}/edit:
     put:
-      summary: ""
+      summary: "Edit a comment on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -1158,7 +1158,7 @@ paths:
         
   /users/{name}/posts/{id}/comments/{commentId}/delete:
     delete:
-      summary: ""
+      summary: "Delete a comment on a post by a user"
       description: ""
       tags: [Posts, Comments]
       parameters:
@@ -1205,7 +1205,7 @@ paths:
         
   /profile:
     get:
-      summary: ""
+      summary: "Get your profile"
       description: ""
       tags: [Profile]
       responses:
@@ -1224,7 +1224,7 @@ paths:
         
   /profile/create:
     post:
-      summary: ""
+      summary: "Create your profile"
       description: ""
       tags: [Profile]
       requestBody:
@@ -1262,7 +1262,7 @@ paths:
         
   /profile/edit:
     put:
-      summary: ""
+      summary: "Edit your profile"
       description: ""
       tags: [Profile]
       requestBody:
@@ -1300,7 +1300,7 @@ paths:
         
   /profile/delete:
     delete:
-      summary: ""
+      summary: "Delete your profile"
       description: ""
       tags: [Profile]
       responses:
@@ -1325,7 +1325,7 @@ paths:
         
   /posts:
     get:
-      summary: ""
+      summary: "List your posts"
       description: ""
       tags: [Posts]
       responses:
@@ -1338,7 +1338,7 @@ paths:
         
   /posts/create:
     post:
-      summary: ""
+      summary: "Create a new post"
       description: ""
       tags: [Posts]
       responses:
@@ -1357,7 +1357,7 @@ paths:
         
   /posts/{id}:
     get:
-      summary: ""
+      summary: "Get your post"
       description: ""
       tags: [Posts]
       parameters:
@@ -1373,7 +1373,7 @@ paths:
           description: ""
   /posts/{id}/edit:
     put:
-      summary: ""
+      summary: "Edit your post"
       description: ""
       tags: [Posts]
       parameters:
@@ -1409,7 +1409,7 @@ paths:
                 $ref: "#/components/schemas/error"
   /posts/{id}/delete:
     delete:
-      summary: ""
+      summary: "Delete your post"
       description: ""
       tags: [Posts]
       parameters:
