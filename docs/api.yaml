@@ -54,7 +54,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/register:
+  /auth/register:
     post:
       summary: "Register a new user"
       description: ""
@@ -85,9 +85,96 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/login:
+  /auth/login:
     post:
       summary: "Log in a user (get JWT token)"
+      description: ""
+      tags: [Account Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  
+  /auth/reset-jwt-token:
+    post:
+      summary: "Reset JWT token"
+      description: ""
+      tags: [Account Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /auth/set-password:
+    post:
+      summary: "Set your password"
+      description: ""
+      tags: [Account Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /auth/delete:
+    post:
+      summary: "Delete  your account"
       description: ""
       tags: [Account Management]
       requestBody:
@@ -114,7 +201,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/reset-jwt-token:
+  /users/{name}/auth/reset-jwt-token:
     post:
       summary: "Reset JWT token"
       description: ""
@@ -158,7 +245,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/set-password:
+  /users/{name}/auth/set-password:
     post:
       summary: "Set user password"
       description: ""
@@ -204,7 +291,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/delete:
+  /users/{name}/auth/delete:
     delete:
       summary: "Delete user account"
       description: ""

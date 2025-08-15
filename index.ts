@@ -51,7 +51,7 @@ app.get("/users/:name", async (req, res) => {
 
 // Account management
 
-app.post("/users/register", async (req, res) => {
+app.post("/auth/register", async (req, res) => {
     const { name, email, password } = req.body;
     requireValue(name, res, "Name is required");
     requireValue(email, res, "Email is required");
@@ -74,7 +74,7 @@ app.post("/users/register", async (req, res) => {
         // publicKey: PUBLIC_KEY
     });
 });
-app.post("/users/login", async (req, res) => {
+app.post("/auth/login", async (req, res) => {
     const { name, password } = req.body;
     requireValue(name, res, "Name is required");
     requireValue(password, res, "Password is required");
@@ -87,7 +87,38 @@ app.post("/users/login", async (req, res) => {
         // publicKey: PUBLIC_KEY
     });
 });
-app.post("/users/:name/reset-jwt-token", async (req, res) => {
+app.post("/auth/reset-jwt-token", async (req, res) => {
+    const { name, password } = req.body;
+    let userId: string;
+    if (req.headers.authorization) [,userId] = await getUserFromAuth(client, req, res);
+    else [,userId] = await checkUserAccountAuth(client, name, password, res);
+    
+    const token = generateJwt({ name, id: userId });
+    res.send({
+        message: `JWT token for user ${name} reset`,
+        id: userId,
+        token,
+        // publicKey: PUBLIC_KEY
+    });
+});
+app.post("/auth/set-password", async (req, res) => {
+    const { name, oldPassword, newPassword } = req.body;
+    await checkUserAccountAuth(client, name, oldPassword, res);
+    const newPasswordHash = bcrypt.hashSync(newPassword, 10);
+    await queryResultOrElse(client, res, "UPDATE users SET password_hash = $1 WHERE name = $2", [newPasswordHash, name], `No user found with name ${name}`);
+    res.send({
+        message: `Password for user ${name} updated`
+    });
+});
+app.delete("/auth/delete", async (req, res) => {
+    const { name, password } = req.body;
+    const [,userId] = await checkUserAccountAuth(client, name, password, res);
+    await query(client, res, "DELETE FROM users WHERE name = $1", [name]);
+    res.send({
+        message: `User with name ${name} deleted`
+    });
+});
+app.post("/users/:name/auth/reset-jwt-token", async (req, res) => {
     const { name } = req.params;
     const { password } = req.body;
     let userId: string;
@@ -102,7 +133,7 @@ app.post("/users/:name/reset-jwt-token", async (req, res) => {
         // publicKey: PUBLIC_KEY
     });
 });
-app.post("/users/:name/set-password", async (req, res) => {
+app.post("/users/:name/auth/set-password", async (req, res) => {
     const { name } = req.params;
     const { oldPassword, newPassword } = req.body;
     await checkUserAccountAuth(client, name, oldPassword, res);
@@ -112,7 +143,7 @@ app.post("/users/:name/set-password", async (req, res) => {
         message: `Password for user ${name} updated`
     });
 });
-app.delete("/users/:name/delete", async (req, res) => {
+app.delete("/users/:name/auth/delete", async (req, res) => {
     const { name } = req.params;
     const { password } = req.body;
     const [,userId] = await checkUserAccountAuth(client, name, password, res);
@@ -121,6 +152,8 @@ app.delete("/users/:name/delete", async (req, res) => {
         message: `User with name ${name} deleted`
     });
 });
+
+
 app.get("/users/:name/posts", async (req, res) => {
     const { name } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
