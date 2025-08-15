@@ -18,25 +18,25 @@ export async function initDatabase(client: pg.PoolClient) {
     await client.query(`
         CREATE TABLE IF NOT EXISTS profiles (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            user INT NOT NULL,
+            owner INT NOT NULL,
             display_name VARCHAR(100) NOT NULL,
             bio TEXT,
             about TEXT,
             profile_picture_url VARCHAR(2083),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE
         );
     `).catch(err => console.error("Error creating profiles table", err));
 
     await client.query(`
         CREATE TABLE IF NOT EXISTS posts (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            user INT NOT NULL,
+            poster INT NOT NULL,
             title VARCHAR(255) NOT NULL,
             content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             edited_at TIMESTAMP,
-            FOREIGN KEY (user) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (poster) REFERENCES users(id) ON DELETE CASCADE
         );
     `).catch(err => console.error("Error creating posts table", err));
 
@@ -44,13 +44,13 @@ export async function initDatabase(client: pg.PoolClient) {
         CREATE TABLE IF NOT EXISTS comments (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             post INT NOT NULL,
-            user INT NOT NULL,
+            commenter INT NOT NULL,
             parent INT,
             content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             edited_at TIMESTAMP,
             FOREIGN KEY (post) REFERENCES posts(id) ON DELETE CASCADE,
-            FOREIGN KEY (user) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (commenter) REFERENCES users(id) ON DELETE CASCADE
         );
     `).catch(err => console.error("Error creating comments table", err));
 
@@ -58,13 +58,13 @@ export async function initDatabase(client: pg.PoolClient) {
         CREATE TABLE IF NOT EXISTS user_comments (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             user_page INT NOT NULL,
-            user INT NOT NULL,
+            commenter INT NOT NULL,
             parent INT,
             content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             edited_at TIMESTAMP,
             FOREIGN KEY (user_page) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (user) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (commenter) REFERENCES users(id) ON DELETE CASCADE
         );
     `).catch(err => console.error("Error creating user_comments table", err));
 }

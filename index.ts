@@ -127,7 +127,7 @@ app.delete("/users/:name/delete", async (req, res) => {
 app.get("/users/:name/posts", async (req, res) => {
     const { name } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: posts} = await query(client, res, "SELECT * FROM posts WHERE user = $1", [userId]);
+    const {rows: posts} = await query(client, res, "SELECT * FROM posts WHERE poster = $1", [userId]);
     res.send({
         message: `Posts for user ${name} found`,
         posts
@@ -145,7 +145,7 @@ app.post("/users/:name/profile/create", async (req, res) => {
     const currentUserId = userId; // Assuming the current user is the one creating the profile (temporarily using user.id as currentUserId, adjust as needed)
     if (!checkCorrectUser(res, userId, currentUserId, "create a profile for yourself")) return;
     
-    let {rows: [profile]} = await query(client, res, "INSERT INTO profiles (user, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, displayName, bio, about, profilePictureUrl]);
+    let {rows: [profile]} = await query(client, res, "INSERT INTO profiles (owner, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, displayName, bio, about, profilePictureUrl]);
     res.send({
         message: `Profile for user ${name} created`,
         profile
@@ -154,7 +154,7 @@ app.post("/users/:name/profile/create", async (req, res) => {
 app.get("/users/:name/profile", async (req, res) => {
     const { name } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: [profile]} = await queryResultOrElse(client, res, "SELECT * FROM profiles WHERE user = $1", [userId], `No profile found for user ${name}`);
+    const {rows: [profile]} = await queryResultOrElse(client, res, "SELECT * FROM profiles WHERE owner = $1", [userId], `No profile found for user ${name}`);
     res.send({
         message: `Profile for user ${name} found`,
         profile
@@ -176,7 +176,7 @@ app.put("/users/:name/profile/edit", async (req, res) => {
         });
         return;
     }
-    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE user = $5 RETURNING *`, [displayName, bio, about, profilePictureUrl, userId], `No profile found for user ${name}`);
+    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE owner = $5 RETURNING *`, [displayName, bio, about, profilePictureUrl, userId], `No profile found for user ${name}`);
     res.send({
         message: `Profile for user ${name} updated`,
         profile
@@ -185,7 +185,7 @@ app.put("/users/:name/profile/edit", async (req, res) => {
 app.delete("/users/:name/profile/delete", async (req, res) => {
     const { name } = req.params;
     const [,userId] = await checkUserAuth(client, name, req, res, "delete your own profile", true);
-    await query(client, res, "DELETE FROM profiles WHERE user = $1", [userId]);
+    await query(client, res, "DELETE FROM profiles WHERE owner = $1", [userId]);
     res.send({
         message: `Profile for user ${name} deleted`
     });
@@ -206,7 +206,7 @@ app.post("/users/:name/user-comments/create", async (req, res) => {
     const { name } = req.params;
     const { content } = req.body;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res);
-    const {rows: [comment]} = await query(client, res, "INSERT INTO user_comments (user_page, user, content) VALUES ($1, $2, $3) RETURNING *", [userId, currentUserId, content]);
+    const {rows: [comment]} = await query(client, res, "INSERT INTO user_comments (user_page, commenter, content) VALUES ($1, $2, $3) RETURNING *", [userId, currentUserId, content]);
     res.send({
         message: `Comment added to user ${name}`,
         comment
@@ -232,7 +232,7 @@ app.post("/users/:name/user-comments/:id/reply", async (req, res) => {
     const { name, id } = req.params;
     const { content } = req.body;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res, "reply to a comment while logged in");
-    const {rows: [reply]} = await query(client, res, "INSERT INTO user_comments (user_page, user, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [userId, currentUserId, id, content]);
+    const {rows: [reply]} = await query(client, res, "INSERT INTO user_comments (user_page, commenter, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [userId, currentUserId, id, content]);
     res.send({
         message: `Reply added to comment with ID ${id} for user ${name}`,
         reply
@@ -254,7 +254,7 @@ app.put("/users/:name/user-comments/:id/edit", async (req, res) => {
     const { content } = req.body;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res);
     // await queryResultOrElse(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND id = $2", [userId, id], "No comment found to edit");
-    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE user_comments SET content = $1 WHERE user_page = $2 AND id = $3 AND user = $4 RETURNING *", [content, userId, id, currentUserId], [403, "You can only edit your own comment"]);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE user_comments SET content = $1 WHERE user_page = $2 AND id = $3 AND commenter = $4 RETURNING *", [content, userId, id, currentUserId], [403, "You can only edit your own comment"]);
     res.send({
         message: `Comment with ID ${id} for user ${name} updated`,
         comment
@@ -264,7 +264,7 @@ app.delete("/users/:name/user-comments/:id/delete", async (req, res) => {
     const { name, id } = req.params;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res);
     // await queryResultOrElse(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND id = $2", [userId, id], "No comment found to delete");
-    await queryResultOrElse(client, res, "DELETE FROM user_comments WHERE user_page = $1 AND id = $2 AND user = $3", [userId, id, currentUserId], [403, "You can only delete your own comment"]);
+    await queryResultOrElse(client, res, "DELETE FROM user_comments WHERE user_page = $1 AND id = $2 AND commenter = $3", [userId, id, currentUserId], [403, "You can only delete your own comment"]);
     res.send({
         message: `Comment with ID ${id} for user ${name} deleted`
     });
@@ -275,7 +275,7 @@ app.delete("/users/:name/user-comments/:id/delete", async (req, res) => {
 app.get("/users/:name/post-comments", async (req, res) => {
     const { name } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: comments} = await query(client, res, "SELECT * FROM post_comments WHERE user = $1", [userId]);
+    const {rows: comments} = await query(client, res, "SELECT * FROM post_comments WHERE commenter = $1", [userId]);
     res.send({
         message: `Comments for user ${name} found`,
         comments
@@ -284,7 +284,7 @@ app.get("/users/:name/post-comments", async (req, res) => {
 app.get("/users/:name/post-comments/:id", async (req, res) => {
     const { name, id } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM post_comments WHERE user = $1 AND id = $2", [userId, id], `No comment found with ID ${id} for user ${name}`);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM post_comments WHERE commenter = $1 AND id = $2", [userId, id], `No comment found with ID ${id} for user ${name}`);
     res.send({
         message: `Comment with ID ${id} for user ${name} found`,
         comment
@@ -294,7 +294,7 @@ app.get("/users/:name/post-comments/:id", async (req, res) => {
 // Profile management for your own profile
 app.get("/profile", async (req, res) => {
     const [,userId] = await getUserFromAuth(client, req, res);
-    const {rows: [profile]} = await queryResultOrElse(client, res, "SELECT * FROM profiles WHERE user = $1", [userId], `No profile found for user ${userId}`);
+    const {rows: [profile]} = await queryResultOrElse(client, res, "SELECT * FROM profiles WHERE owner = $1", [userId], `No profile found for user ${userId}`);
     res.send({
         message: `Profile for user ${userId} found`,
         profile
@@ -304,7 +304,7 @@ app.post("/profile/create", async (req, res) => {
     const [,userId] = await getUserFromAuth(client, req, res);
     const { displayName, bio, about, profilePictureUrl } = req.body;
     requireValue(displayName, res, "Display name is required");
-    const {rows: [profile]} = await query(client, res, "INSERT INTO profiles (user, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, displayName, bio, about, profilePictureUrl]);
+    const {rows: [profile]} = await query(client, res, "INSERT INTO profiles (owner, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, displayName, bio, about, profilePictureUrl]);
     res.send({
         message: `Profile for user ${userId} created`,
         profile
@@ -324,7 +324,7 @@ app.put("/profile/edit", async (req, res) => {
         });
         return;
     }
-    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE user = $5 RETURNING *`, [displayName, bio, about, profilePictureUrl, userId], `No profile found for user ${userId}`);
+    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE owner = $5 RETURNING *`, [displayName, bio, about, profilePictureUrl, userId], `No profile found for user ${userId}`);
     res.send({
         message: `Profile for user ${userId} updated`,
         profile
@@ -332,7 +332,7 @@ app.put("/profile/edit", async (req, res) => {
 });
 app.delete("/profile/delete", async (req, res) => {
     const [,userId] = await getUserFromAuth(client, req, res);
-    await queryResultOrElse(client, res, "DELETE FROM profiles WHERE user = $1", [userId], `No profile found for user ${userId}`);
+    await queryResultOrElse(client, res, "DELETE FROM profiles WHERE owner = $1", [userId], `No profile found for user ${userId}`);
     res.send({
         message: `Profile for user ${userId} deleted`
     });
@@ -342,7 +342,7 @@ app.delete("/profile/delete", async (req, res) => {
 
 app.get("/posts", async (req, res) => {
     const [,userId] = await getUserFromAuth(client, req, res);
-    const {rows: posts} = await query(client, res, "SELECT * FROM posts WHERE user = $1", [userId]);
+    const {rows: posts} = await query(client, res, "SELECT * FROM posts WHERE poster = $1", [userId]);
     res.send({
         message: "List of posts",
         posts
@@ -351,7 +351,7 @@ app.get("/posts", async (req, res) => {
 app.get("/posts/:id", async (req, res) => {
     const { id } = req.params;
     const [,userId] = await getUserFromAuth(client, req, res);
-    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE poster = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
     res.send({
         message: `post with ID ${id} found`,
         post
@@ -362,7 +362,7 @@ app.post("/posts/create", async (req, res) => {
     const [,userId] = await getUserFromAuth(client, req, res);
     requireValue(postName, res, "Post name is required");
     requireValue(content, res, "Content is required");
-    const {rows: [post]} = await query(client, res, "INSERT INTO posts (user, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, postName, content]);
+    const {rows: [post]} = await query(client, res, "INSERT INTO posts (poster, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, postName, content]);
     res.send({
         message: `Created post with name ${postName}`,
         post
@@ -375,7 +375,7 @@ app.put("/posts/:id/edit", async (req, res) => {
     requireValue(postName || content, res, "At least one of post name or content is required to update");
     let query = postName ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $1";
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE user = $3 AND id = $4 RETURNING *`, [postName, content, userId, id], `No post found with ID ${id}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE poster = $3 AND id = $4 RETURNING *`, [postName, content, userId, id], `No post found with ID ${id}`);
     res.send({
         message: `Updated post with ID ${id} and name ${postName}`,
         post
@@ -385,7 +385,7 @@ app.delete("/posts/:id/delete", async (req, res) => {
     const { id } = req.params;
     const [,userId] = await getUserFromAuth(client, req, res);
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    await queryResultOrElse(client, res, "DELETE FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
+    await queryResultOrElse(client, res, "DELETE FROM posts WHERE poster = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
     res.send({
         message: `Deleted post with ID ${id}`
     });
@@ -399,7 +399,7 @@ app.post("/users/:name/posts/create", async (req, res) => {
     const [,userId] = await checkUserAuth(client, name, req, res, "create a post while logged in", true, () => {});
     requireValue(postName, res, "Post name is required");
     requireValue(content, res, "Content is required");
-    const {rows: [post]} = await query(client, res, "INSERT INTO posts (user, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, postName, content]);
+    const {rows: [post]} = await query(client, res, "INSERT INTO posts (poster, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, postName, content]);
     res.send({
         message: `Created post with user ${name}`,
         post
@@ -409,7 +409,7 @@ app.post("/users/:name/posts/create", async (req, res) => {
 app.get("/users/:name/posts/:id", async (req, res) => {
     const { name, id } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE poster = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
     res.send({
         message: `post user is ${name} and ID is ${id}`,
         post
@@ -423,7 +423,7 @@ app.put("/users/:name/posts/:id/edit", async (req, res) => {
     requireValue(postName || content, res, "At least one of post name or content is required to update");
     let query = postName ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $2";
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
-    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE user = $3 AND id = $4 RETURNING *`, [postName, content, userId, id], `No post found with ID ${id}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE poster = $3 AND id = $4 RETURNING *`, [postName, content, userId, id], `No post found with ID ${id}`);
     res.send({
         message: `Updated post with ID ${id} and name ${postName}`,
         post
@@ -434,7 +434,7 @@ app.delete("/users/:name/posts/:id/delete", async (req, res) => {
     const { name, id } = req.params;
     const [,userId] = await checkUserAuth(client, name, req, res, "delete a post while logged in", true);
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    await queryResultOrElse(client, res, "DELETE FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
+    await queryResultOrElse(client, res, "DELETE FROM posts WHERE poster = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
     res.send({
         message: `Deleted post with ID ${id}`
     });
@@ -458,7 +458,7 @@ app.post("/users/:name/posts/:id/comments/create", async (req, res) => {
     const { content } = req.body;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "add a comment while logged in", false);
     requireValue(content, res, "Content is required for the comment");
-    const {rows: [comment]} = await query(client, res, "INSERT INTO comments (post, user, content) VALUES ($1, $2, $3) RETURNING *", [id, currentUserId, content]);
+    const {rows: [comment]} = await query(client, res, "INSERT INTO comments (post, commenter, content) VALUES ($1, $2, $3) RETURNING *", [id, currentUserId, content]);
     res.send({
         message: `Comment added to post with ID ${id} and user ${name}`,
         comment
@@ -481,7 +481,7 @@ app.post("/users/:name/posts/:id/comments/:commentId/reply", async (req, res) =>
     const { content } = req.body;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "reply to a comment while logged in", false);
     requireValue(content, res, "Content is required for the reply");
-    const {rows: [reply]} = await query(client, res, "INSERT INTO comments (post, user, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [id, currentUserId, commentId, content]);
+    const {rows: [reply]} = await query(client, res, "INSERT INTO comments (post, commenter, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [id, currentUserId, commentId, content]);
     res.send({
         message: `Reply added to comment with ID ${commentId} for post with ID ${id} and user ${name}`,
         reply
@@ -504,7 +504,7 @@ app.put("/users/:name/posts/:id/comment/:commentId/edit", async (req, res) => {
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "edit a comment while logged in", false);
     requireValue(content, res, "Content is required for the comment");
     // await queryResultOrElse(client, res, "SELECT * FROM comments WHERE post = $1 AND id = $2 AND user = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
-    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE comments SET content = $1 WHERE post = $2 AND id = $3 AND user = $4 RETURNING *", [content, id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE comments SET content = $1 WHERE post = $2 AND id = $3 AND commenter = $4 RETURNING *", [content, id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
     res.send({
         message: `Updated comment with ID ${commentId} for post with ID ${id} and user ${name}`,
         comment
@@ -515,7 +515,7 @@ app.delete("/users/:name/posts/:id/comments/:commentId/delete", async (req, res)
     const { name, id, commentId } = req.params;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "delete a comment while logged in", false);
     // await queryResultOrElse(client, res, "SELECT * FROM comments WHERE post = $1 AND id = $2 AND user = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
-    await queryResultOrElse(client, res, "DELETE FROM comments WHERE post = $1 AND id = $2 AND user = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
+    await queryResultOrElse(client, res, "DELETE FROM comments WHERE post = $1 AND id = $2 AND commenter = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
     res.send({
         message: `Deleted comment with ID ${commentId} for post with ID ${id} and user ${name}`
     });
