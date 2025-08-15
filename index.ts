@@ -1,17 +1,18 @@
-import * as express from "express";
-import * as pg from "pg";
-import * as bcrypt from "bcrypt";
+import express from "express";
+import pg from "pg";
+import bcrypt from "bcrypt";
+import "dotenv/config";
 import { generateJwt, initDatabase, checkUserExists, checkUserAccountAuth, query, checkCorrectUser, checkUserAuth, queryResultOrElse, getUserFromAuth, requireValue } from "./util.ts";
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 
 const db = new pg.Pool({
     user: process.env.DB_USER || "postgres",
     host: process.env.DB_HOST || "localhost",
     database: process.env.DB_NAME || "postedit",
     password: process.env.DB_PASSWORD,
-    port: 5432
+    port: Number(process.env.DB_PORT || 5432),
 });
 let client: pg.PoolClient;
 
