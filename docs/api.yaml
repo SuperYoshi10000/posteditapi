@@ -20,6 +20,7 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Users]
       responses:
         '200':
           description: Success
@@ -32,6 +33,13 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Users]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -40,7 +48,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/success"
         '404':
-          description: Item does not exist
+          description: User does not exist
           content:
             application/json:
               schema:
@@ -50,9 +58,22 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Account Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:  
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
-        '200':
-          description: Success
+        '201':
+          description: User registered
           content:
             application/json:
               schema:
@@ -68,6 +89,17 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Account Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
       responses:
         '200':
           description: Success
@@ -86,6 +118,20 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Account Management]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  type: string
       responses:
         '200':
           description: Success
@@ -116,6 +162,22 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Account Management]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
       responses:
         '200':
           description: Success
@@ -146,6 +208,20 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Account Management]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  type: string
       responses:
         '200':
           description: Success
@@ -176,14 +252,52 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: ""
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Profile does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
         
   /users/{name}/profile/create:
     post:
       summary: ""
       description: ""
+      tags: [Profile]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                displayName:
+                  type: string
+                bio:
+                  type: string
+                about:
+                  type: string
+                profilePictureUrl:
+                  type: string
       responses:
         '200':
           description: Success
@@ -214,6 +328,26 @@ paths:
     put:
       summary: ""
       description: ""
+      tags: [Profile]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                displayName:
+                  type: string
+                bio:
+                  type: string
+                about:
+                  type: string
+                profilePictureUrl:
+                  type: string
       responses:
         '200':
           description: Success
@@ -244,6 +378,13 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Profile]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -274,6 +415,13 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -292,6 +440,20 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -316,6 +478,18 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -334,6 +508,25 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -358,6 +551,18 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -366,7 +571,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/success"
         '404':
-          description: Item does not exist
+          description: Comment does not exist
           content:
             application/json:
               schema:
@@ -376,6 +581,25 @@ paths:
     put:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -406,6 +630,18 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -436,6 +672,13 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -454,6 +697,18 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -472,6 +727,13 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -490,6 +752,22 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                postName:
+                  type: string
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -514,6 +792,18 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -532,6 +822,27 @@ paths:
     put:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                postName:
+                  type: string
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -562,6 +873,18 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -592,6 +915,18 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -610,6 +945,25 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -634,6 +988,23 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -652,6 +1023,30 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -676,6 +1071,23 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -694,6 +1106,30 @@ paths:
     put:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
       responses:
         '200':
           description: Success
@@ -724,6 +1160,23 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Posts, Comments]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -754,6 +1207,7 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Profile]
       responses:
         '200':
           description: Success
@@ -772,6 +1226,20 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Profile]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                displayName:
+                  type: string
+                bio:
+                  type: string
+                about:
+                  type: string
+                profilePictureUrl:
+                  type: string
       responses:
         '200':
           description: Success
@@ -796,6 +1264,20 @@ paths:
     put:
       summary: ""
       description: ""
+      tags: [Profile]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                displayName:
+                  type: string
+                bio:
+                  type: string
+                about:
+                  type: string
+                profilePictureUrl:
+                  type: string
       responses:
         '200':
           description: Success
@@ -820,6 +1302,7 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Profile]
       responses:
         '200':
           description: Success
@@ -844,6 +1327,7 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts]
       responses:
         '200':
           description: Success
@@ -856,6 +1340,7 @@ paths:
     post:
       summary: ""
       description: ""
+      tags: [Posts]
       responses:
         '200':
           description: Success
@@ -874,6 +1359,13 @@ paths:
     get:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: ""
@@ -883,6 +1375,13 @@ paths:
     put:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -912,6 +1411,13 @@ paths:
     delete:
       summary: ""
       description: ""
+      tags: [Posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success

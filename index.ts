@@ -3,6 +3,7 @@ import pg from "pg";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import { generateJwt, initDatabase, checkUserExists, checkUserAccountAuth, query, checkCorrectUser, checkUserAuth, queryResultOrElse, getUserFromAuth, requireValue } from "./util.ts";
+import { absolutePath } from "swagger-ui-dist";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -509,9 +510,7 @@ app.delete("/users/:name/posts/:id/comments/:commentId/delete", async (req, res)
 });
 
 
-app.get("/docs", (req, res) => {
-    res.sendFile("/docs/index.html");
-})
+app.use("/docs", express.static("docs"));
 
 
 app.listen(port, async () => {
