@@ -24,7 +24,9 @@ export async function initDatabase(client: pg.PoolClient) {
             about TEXT,
             profile_picture_url VARCHAR(2083),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user) REFERENCES users(id) ON DELETE CASCADE`)
+            FOREIGN KEY (user) REFERENCES users(id) ON DELETE CASCADE
+        );
+    `).catch(err => console.error("Error creating profiles table", err));
 
     await client.query(`
         CREATE TABLE IF NOT EXISTS posts (
