@@ -20,7 +20,7 @@ let client: pg.PoolClient;
 
 app.get("/", (req, res) => {
     res.send({
-        message: "API Root"
+        message: "Post Edit API Root"
     });
 });
 
