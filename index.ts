@@ -2,7 +2,7 @@ import express from "express";
 import pg from "pg";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import { generateJwt, initDatabase, checkUserExists, checkUserAccountAuth, query, checkCorrectUser, checkUserAuth, queryResultOrElse, getUserFromAuth, requireValue } from "./util.ts";
+import { generateJwt, initDatabase, checkUserExists, checkUserAccountAuth, query, checkCorrectUser, checkUserAuth, queryResultOrElse, getUserFromAuth, requireValue, checkAuthentication } from "./util.ts";
 import { absolutePath } from "swagger-ui-dist";
 
 const app = express();
@@ -542,6 +542,27 @@ app.delete("/users/:name/posts/:id/comments/:commentId/delete", async (req, res)
     });
 });
 
+app.use("/admin", async (req, res, next) => {
+    const { id, isAdmin } = checkAuthentication(req, res) ?? {};
+    if (!isAdmin) {
+        res.status(403).send({
+            error: "Admin access required"
+        });
+        return;
+    }
+});
+app.all("/admin/query", async (req, res) => {
+    query(client, res, req.query?.toString()).then(result => {
+        res.send({
+            message: "Query executed",
+            result
+        });
+    }, err => {
+        res.status(400).send({
+            error: err.message
+        });
+    });
+});
 
 app.use("/docs", express.static("docs"));
 

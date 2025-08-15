@@ -174,7 +174,7 @@ paths:
 
   /auth/delete:
     post:
-      summary: "Delete  your account"
+      summary: "Delete your account"
       description: ""
       tags: [Account Management]
       requestBody:
@@ -203,7 +203,7 @@ paths:
         
   /users/{name}/auth/reset-jwt-token:
     post:
-      summary: "Reset JWT token"
+      summary: "Reset JWT token for a user"
       description: ""
       tags: [Account Management]
       parameters:
