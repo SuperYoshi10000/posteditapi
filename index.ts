@@ -73,7 +73,6 @@ app.post("/users/register", async (req, res) => {
         // publicKey: PUBLIC_KEY
     });
 });
-
 app.post("/users/login", async (req, res) => {
     const { name, password } = req.body;
     requireValue(name, res, "Name is required");
@@ -87,7 +86,6 @@ app.post("/users/login", async (req, res) => {
         // publicKey: PUBLIC_KEY
     });
 });
-
 app.post("/users/:name/reset-jwt-token", async (req, res) => {
     const { name } = req.params;
     const { password } = req.body;
@@ -113,7 +111,6 @@ app.post("/users/:name/set-password", async (req, res) => {
         message: `Password for user ${name} updated`
     });
 });
-
 app.delete("/users/:name/delete", async (req, res) => {
     const { name } = req.params;
     const { password } = req.body;
@@ -123,7 +120,6 @@ app.delete("/users/:name/delete", async (req, res) => {
         message: `User with name ${name} deleted`
     });
 });
-
 app.get("/users/:name/posts", async (req, res) => {
     const { name } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
@@ -227,7 +223,6 @@ app.get("/users/:name/user-comments/:id", async (req, res) => {
         comment
     });
 });
-
 app.post("/users/:name/user-comments/:id/reply", async (req, res) => {
     const { name, id } = req.params;
     const { content } = req.body;
@@ -405,7 +400,6 @@ app.post("/users/:name/posts/create", async (req, res) => {
         post
     });
 });
-
 app.get("/users/:name/posts/:id", async (req, res) => {
     const { name, id } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
@@ -415,7 +409,6 @@ app.get("/users/:name/posts/:id", async (req, res) => {
         post
     });
 });
-
 app.put("/users/:name/posts/:id/edit", async (req, res) => {
     const { name, id } = req.params;
     const { postName, content } = req.body;
@@ -429,7 +422,6 @@ app.put("/users/:name/posts/:id/edit", async (req, res) => {
         post
     });
 });
-
 app.delete("/users/:name/posts/:id/delete", async (req, res) => {
     const { name, id } = req.params;
     const [,userId] = await checkUserAuth(client, name, req, res, "delete a post while logged in", true);
@@ -451,7 +443,6 @@ app.get("/users/:name/posts/:id/comments", async (req, res) => {
         comments
     });
 });
-
 // Post a comment to a post
 app.post("/users/:name/posts/:id/comments/create", async (req, res) => {
     const { name, id } = req.params;
@@ -464,7 +455,6 @@ app.post("/users/:name/posts/:id/comments/create", async (req, res) => {
         comment
     });
 });
-
 // Get a comment by its ID (also applies to replies)
 app.get("/users/:name/posts/:id/comments/:commentId", async (req, res) => {
     const { name, id, commentId } = req.params;
@@ -487,7 +477,6 @@ app.post("/users/:name/posts/:id/comments/:commentId/reply", async (req, res) =>
         reply
     });
 });
-
 app.get("/users/:name/posts/:id/comments/:commentId/replies", async (req, res) => {
     const { name, id, commentId } = req.params;
     await checkUserExists(client, name, res);
@@ -497,8 +486,7 @@ app.get("/users/:name/posts/:id/comments/:commentId/replies", async (req, res) =
         replies
     });
 });
-
-app.put("/users/:name/posts/:id/comment/:commentId/edit", async (req, res) => {
+app.put("/users/:name/posts/:id/comments/:commentId/edit", async (req, res) => {
     const { name, id, commentId } = req.params;
     const { content } = req.body;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "edit a comment while logged in", false);
@@ -510,7 +498,6 @@ app.put("/users/:name/posts/:id/comment/:commentId/edit", async (req, res) => {
         comment
     });
 });
-
 app.delete("/users/:name/posts/:id/comments/:commentId/delete", async (req, res) => {
     const { name, id, commentId } = req.params;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "delete a comment while logged in", false);
@@ -522,6 +509,9 @@ app.delete("/users/:name/posts/:id/comments/:commentId/delete", async (req, res)
 });
 
 
+app.get("/docs", (req, res) => {
+    res.sendFile("/docs/index.html");
+})
 
 
 app.listen(port, async () => {

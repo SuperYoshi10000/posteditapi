@@ -1,0 +1,956 @@
+openapi: 3.0.0
+info:
+  title: Post Edit API
+  version: 1.0.0
+  description: An API for creating and editing a blog or blog-like platform
+paths:
+  /:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+
+  /users:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        
+  /users/{name}:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Item does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/register:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/login:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/reset-jwt-token:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/set-password:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/profile:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: ""
+        
+  /users/{name}/profile/create:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/profile/edit:
+    put:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Profile does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/profile/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Profile does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments/create:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Parent user does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments/{id}:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments/{id}/reply:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Parent comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments/{id}/replies:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Item does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments/{id}/edit:
+    put:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/user-comments/{id}/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/post-comments:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/post-comments/{id}:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/create:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Parent user does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/edit:
+    put:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments/create:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Parent post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments/{commentId}:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments/{commentId}/reply:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Parent comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments/{commentId}/replies:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments/{commentId}/edit:
+    put:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /users/{name}/posts/{id}/comments/{commentId}/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /profile:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: Profile does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /profile/create:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '400':
+          description: Profile already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /profile/edit:
+    put:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Profile does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /profile/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Profile does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /posts:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        
+  /posts/create:
+    post:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+  /posts/{id}:
+    get:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: ""
+        '404':
+          description: ""
+  /posts/{id}/edit:
+    put:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /posts/{id}/delete:
+    delete:
+      summary: ""
+      description: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: Wrong user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        
+
+components:
+  schemas:
+    success:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      
