@@ -242,60 +242,60 @@ app.post("/users/:name/user-comments/create", async (req, res) => {
         comment
     });
 });
-app.get("/users/:name/user-comments/:id", async (req, res) => {
-    const { name, id } = req.params;
+app.get("/users/:name/user-comments/:commentId", async (req, res) => {
+    const { name, commentId } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND id = $2", [userId, id], `No comment found with ID ${id} for user ${name}`);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND id = $2", [userId, commentId], `No comment found with ID ${commentId} for user ${name}`);
     if (!comment) {
         res.status(404).send({
-            error: `No comment found with ID ${id} for user ${name}`
+            error: `No comment found with ID ${commentId} for user ${name}`
         });
         return;
     }
     res.send({
-        message: `Comment with ID ${id} for user ${name} found`,
+        message: `Comment with ID ${commentId} for user ${name} found`,
         comment
     });
 });
-app.post("/users/:name/user-comments/:id/reply", async (req, res) => {
-    const { name, id } = req.params;
+app.post("/users/:name/user-comments/:commentId/reply", async (req, res) => {
+    const { name, commentId } = req.params;
     const { content } = req.body;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res, "reply to a comment while logged in");
-    const {rows: [reply]} = await query(client, res, "INSERT INTO user_comments (user_page, author, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [userId, currentUserId, id, content]);
+    const {rows: [reply]} = await query(client, res, "INSERT INTO user_comments (user_page, author, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [userId, currentUserId, commentId, content]);
     res.send({
-        message: `Reply added to comment with ID ${id} for user ${name}`,
+        message: `Reply added to comment with ID ${commentId} for user ${name}`,
         reply
     });
 });
-app.get("/users/:name/user-comments/:id/replies", async (req, res) => {
-    const { name, id } = req.params;
+app.get("/users/:name/user-comments/:commentId/replies", async (req, res) => {
+    const { name, commentId } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: replies} = await query(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND parent = $2", [userId, id]);
+    const {rows: replies} = await query(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND parent = $2", [userId, commentId]);
     res.send({
-        message: `Replies for comment with ID ${id} for user ${name}`,
+        message: `Replies for comment with ID ${commentId} for user ${name}`,
         replies
     });
 });
 
 
-app.put("/users/:name/user-comments/:id/edit", async (req, res) => {
-    const { name, id } = req.params;
+app.put("/users/:name/user-comments/:commentId/edit", async (req, res) => {
+    const { name, commentId } = req.params;
     const { content } = req.body;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res);
     // await queryResultOrElse(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND id = $2", [userId, id], "No comment found to edit");
-    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE user_comments SET content = $1 WHERE user_page = $2 AND id = $3 AND author = $4 RETURNING *", [content, userId, id, currentUserId], [403, "You can only edit your own comment"]);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE user_comments SET content = $1 WHERE user_page = $2 AND id = $3 AND author = $4 RETURNING *", [content, userId, commentId, currentUserId], [403, "You can only edit your own comment"]);
     res.send({
-        message: `Comment with ID ${id} for user ${name} updated`,
+        message: `Comment with ID ${commentId} for user ${name} updated`,
         comment
     });
 });
-app.delete("/users/:name/user-comments/:id/delete", async (req, res) => {
-    const { name, id } = req.params;
+app.delete("/users/:name/user-comments/:commentId/delete", async (req, res) => {
+    const { name, commentId } = req.params;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res);
     // await queryResultOrElse(client, res, "SELECT * FROM user_comments WHERE user_page = $1 AND id = $2", [userId, id], "No comment found to delete");
-    await queryResultOrElse(client, res, "DELETE FROM user_comments WHERE user_page = $1 AND id = $2 AND author = $3", [userId, id, currentUserId], [403, "You can only delete your own comment"]);
+    await queryResultOrElse(client, res, "DELETE FROM user_comments WHERE user_page = $1 AND id = $2 AND author = $3", [userId, commentId, currentUserId], [403, "You can only delete your own comment"]);
     res.send({
-        message: `Comment with ID ${id} for user ${name} deleted`
+        message: `Comment with ID ${commentId} for user ${name} deleted`
     });
 });
 
@@ -310,12 +310,12 @@ app.get("/users/:name/post-comments", async (req, res) => {
         comments
     });
 });
-app.get("/users/:name/post-comments/:id", async (req, res) => {
-    const { name, id } = req.params;
+app.get("/users/:name/post-comments/:commentId", async (req, res) => {
+    const { name, commentId } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM post_comments WHERE author = $1 AND id = $2", [userId, id], `No comment found with ID ${id} for user ${name}`);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM post_comments WHERE author = $1 AND id = $2", [userId, commentId], `No comment found with ID ${commentId} for user ${name}`);
     res.send({
-        message: `Comment with ID ${id} for user ${name} found`,
+        message: `Comment with ID ${commentId} for user ${name} found`,
         comment
     });
 });
@@ -377,12 +377,12 @@ app.get("/posts", async (req, res) => {
         posts
     });
 });
-app.get("/posts/:id", async (req, res) => {
-    const { id } = req.params;
+app.get("/posts/:postId", async (req, res) => {
+    const { postId } = req.params;
     const [,userId] = await getUserFromAuth(client, req, res);
-    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE author = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE author = $1 AND id = $2", [userId, postId], `No post found with ID ${postId}`);
     res.send({
-        message: `post with ID ${id} found`,
+        message: `post with ID ${postId} found`,
         post
     });
 });
@@ -397,26 +397,26 @@ app.post("/posts/create", async (req, res) => {
         post
     });
 });
-app.put("/posts/:id/edit", async (req, res) => {
-    const { id } = req.params;
+app.put("/posts/:postId/edit", async (req, res) => {
+    const { postId } = req.params;
     const { postName, content } = req.body;
     const [,userId] = await getUserFromAuth(client, req, res);
     requireValue(postName || content, res, "At least one of post name or content is required to update");
     let query = postName ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $1";
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [postName, content, userId, id], `No post found with ID ${id}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [postName, content, userId, postId], `No post found with ID ${postId}`);
     res.send({
-        message: `Updated post with ID ${id} and name ${postName}`,
+        message: `Updated post with ID ${postId} and name ${postName}`,
         post
     });
 });
-app.delete("/posts/:id/delete", async (req, res) => {
-    const { id } = req.params;
+app.delete("/posts/:postId/delete", async (req, res) => {
+    const { postId } = req.params;
     const [,userId] = await getUserFromAuth(client, req, res);
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    await queryResultOrElse(client, res, "DELETE FROM posts WHERE author = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
+    await queryResultOrElse(client, res, "DELETE FROM posts WHERE author = $1 AND id = $2", [userId, postId], `No post found with ID ${postId} for user ${name}`);
     res.send({
-        message: `Deleted post with ID ${id}`
+        message: `Deleted post with ID ${postId}`
     });
 });
 
@@ -434,116 +434,116 @@ app.post("/users/:name/posts/create", async (req, res) => {
         post
     });
 });
-app.get("/users/:name/posts/:id", async (req, res) => {
-    const { name, id } = req.params;
+app.get("/users/:name/posts/:postId", async (req, res) => {
+    const { name, postId } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE author = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, "SELECT * FROM posts WHERE author = $1 AND id = $2", [userId, postId], `No post found with ID ${postId} for user ${name}`);
     res.send({
-        message: `post user is ${name} and ID is ${id}`,
+        message: `post user is ${name} and ID is ${postId}`,
         post
     });
 });
-app.put("/users/:name/posts/:id/edit", async (req, res) => {
-    const { name, id } = req.params;
+app.put("/users/:name/posts/:postId/edit", async (req, res) => {
+    const { name, postId } = req.params;
     const { postName, content } = req.body;
     const [,userId] = await checkUserAuth(client, name, req, res, "edit a post while logged in", true);
     requireValue(postName || content, res, "At least one of post name or content is required to update");
     let query = postName ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $2";
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
-    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [postName, content, userId, id], `No post found with ID ${id}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [postName, content, userId, postId], `No post found with ID ${postId}`);
     res.send({
-        message: `Updated post with ID ${id} and name ${postName}`,
+        message: `Updated post with ID ${postId} and name ${postName}`,
         post
     });
 });
-app.delete("/users/:name/posts/:id/delete", async (req, res) => {
-    const { name, id } = req.params;
+app.delete("/users/:name/posts/:postId/delete", async (req, res) => {
+    const { name, postId } = req.params;
     const [,userId] = await checkUserAuth(client, name, req, res, "delete a post while logged in", true);
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    await queryResultOrElse(client, res, "DELETE FROM posts WHERE author = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
+    await queryResultOrElse(client, res, "DELETE FROM posts WHERE author = $1 AND id = $2", [userId, postId], `No post found with ID ${postId} for user ${name}`);
     res.send({
-        message: `Deleted post with ID ${id}`
+        message: `Deleted post with ID ${postId}`
     });
 });
 
 // Post comments
 
-app.get("/users/:name/posts/:id/comments", async (req, res) => {
-    const { name, id } = req.params;
+app.get("/users/:name/posts/:postId/comments", async (req, res) => {
+    const { name, postId } = req.params;
     const [,userId] = await checkUserExists(client, name, res);
-    const {rows: comments} = await query(client, res, "SELECT * FROM comments WHERE post = $1", [id]);
+    const {rows: comments} = await query(client, res, "SELECT * FROM comments WHERE post = $1", [postId]);
     res.send({
-        message: `Comments for post with ID ${id} and user ${name}`,
+        message: `Comments for post with ID ${postId} and user ${name}`,
         comments
     });
 });
 // Post a comment to a post
-app.post("/users/:name/posts/:id/comments/create", async (req, res) => {
-    const { name, id } = req.params;
+app.post("/users/:name/posts/:postId/comments/create", async (req, res) => {
+    const { name, postId } = req.params;
     const { content } = req.body;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "add a comment while logged in", false);
     requireValue(content, res, "Content is required for the comment");
-    const {rows: [comment]} = await query(client, res, "INSERT INTO comments (post, author, content) VALUES ($1, $2, $3) RETURNING *", [id, currentUserId, content]);
+    const {rows: [comment]} = await query(client, res, "INSERT INTO comments (post, author, content) VALUES ($1, $2, $3) RETURNING *", [postId, currentUserId, content]);
     res.send({
-        message: `Comment added to post with ID ${id} and user ${name}`,
+        message: `Comment added to post with ID ${postId} and user ${name}`,
         comment
     });
 });
 // Get a comment by its ID (also applies to replies)
-app.get("/users/:name/posts/:id/comments/:commentId", async (req, res) => {
-    const { name, id, commentId } = req.params;
+app.get("/users/:name/posts/:postId/comments/:commentId", async (req, res) => {
+    const { name, postId, commentId } = req.params;
     await checkUserExists(client, name, res);
-    let {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM comments WHERE post = $1 AND id = $2", [id, commentId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
+    let {rows: [comment]} = await queryResultOrElse(client, res, "SELECT * FROM comments WHERE post = $1 AND id = $2", [postId, commentId], `No comment found with ID ${commentId} for post with ID ${postId} and user ${name}`);
     res.send({
-        message: `Comment with ID ${commentId} for post with ID ${id} and user ${name} found`,
+        message: `Comment with ID ${commentId} for post with ID ${postId} and user ${name} found`,
         comment
     });
 });
 // Get all replies to a comment
-app.post("/users/:name/posts/:id/comments/:commentId/reply", async (req, res) => {
-    const { name, id, commentId } = req.params;
+app.post("/users/:name/posts/:postId/comments/:commentId/reply", async (req, res) => {
+    const { name, postId, commentId } = req.params;
     const { content } = req.body;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "reply to a comment while logged in", false);
     requireValue(content, res, "Content is required for the reply");
-    const {rows: [reply]} = await query(client, res, "INSERT INTO comments (post, author, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [id, currentUserId, commentId, content]);
+    const {rows: [reply]} = await query(client, res, "INSERT INTO comments (post, author, parent, content) VALUES ($1, $2, $3, $4) RETURNING *", [postId, currentUserId, commentId, content]);
     res.send({
-        message: `Reply added to comment with ID ${commentId} for post with ID ${id} and user ${name}`,
+        message: `Reply added to comment with ID ${commentId} for post with ID ${postId} and user ${name}`,
         reply
     });
 });
-app.get("/users/:name/posts/:id/comments/:commentId/replies", async (req, res) => {
-    const { name, id, commentId } = req.params;
+app.get("/users/:name/posts/:postId/comments/:commentId/replies", async (req, res) => {
+    const { name, postId, commentId } = req.params;
     await checkUserExists(client, name, res);
-    const {rows: replies} = await query(client, res, "SELECT * FROM comments WHERE post = $1 AND parent = $2", [id, commentId]);
+    const {rows: replies} = await query(client, res, "SELECT * FROM comments WHERE post = $1 AND parent = $2", [postId, commentId]);
     res.send({
-        message: `Replies for comment with ID ${commentId} for post with ID ${id} and user ${name}`,
+        message: `Replies for comment with ID ${commentId} for post with ID ${postId} and user ${name}`,
         replies
     });
 });
-app.put("/users/:name/posts/:id/comments/:commentId/edit", async (req, res) => {
-    const { name, id, commentId } = req.params;
+app.put("/users/:name/posts/:postId/comments/:commentId/edit", async (req, res) => {
+    const { name, postId, commentId } = req.params;
     const { content } = req.body;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "edit a comment while logged in", false);
     requireValue(content, res, "Content is required for the comment");
     // await queryResultOrElse(client, res, "SELECT * FROM comments WHERE post = $1 AND id = $2 AND user = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
-    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE comments SET content = $1 WHERE post = $2 AND id = $3 AND author = $4 RETURNING *", [content, id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
+    const {rows: [comment]} = await queryResultOrElse(client, res, "UPDATE comments SET content = $1 WHERE post = $2 AND id = $3 AND author = $4 RETURNING *", [content, postId, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${postId} and user ${name}`);
     res.send({
-        message: `Updated comment with ID ${commentId} for post with ID ${id} and user ${name}`,
+        message: `Updated comment with ID ${commentId} for post with ID ${postId} and user ${name}`,
         comment
     });
 });
-app.delete("/users/:name/posts/:id/comments/:commentId/delete", async (req, res) => {
-    const { name, id, commentId } = req.params;
+app.delete("/users/:name/posts/:postId/comments/:commentId/delete", async (req, res) => {
+    const { name, postId, commentId } = req.params;
     const [,,currentUserId] = await checkUserAuth(client, name, req, res, "delete a comment while logged in", false);
     // await queryResultOrElse(client, res, "SELECT * FROM comments WHERE post = $1 AND id = $2 AND user = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
-    await queryResultOrElse(client, res, "DELETE FROM comments WHERE post = $1 AND id = $2 AND author = $3", [id, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${id} and user ${name}`);
+    await queryResultOrElse(client, res, "DELETE FROM comments WHERE post = $1 AND id = $2 AND author = $3", [postId, commentId, currentUserId], `No comment found with ID ${commentId} for post with ID ${postId} and user ${name}`);
     res.send({
-        message: `Deleted comment with ID ${commentId} for post with ID ${id} and user ${name}`
+        message: `Deleted comment with ID ${commentId} for post with ID ${postId} and user ${name}`
     });
 });
 
 app.use("/admin", async (req, res, next) => {
-    const { id, isAdmin } = checkAuthentication(req, res) ?? {};
+    const { isAdmin } = checkAuthentication(req, res) ?? {};
     if (!isAdmin) {
         res.status(403).send({
             error: "Admin access required"

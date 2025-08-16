@@ -561,7 +561,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/user-comments/{id}:
+  /users/{name}/user-comments/{commentId}:
     get:
       summary: "Get a comment on a user profile"
       description: ""
@@ -591,7 +591,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/user-comments/{id}/reply:
+  /users/{name}/user-comments/{commentId}/reply:
     post:
       summary: "Reply to a comment on a user profile"
       description: ""
@@ -634,7 +634,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/user-comments/{id}/replies:
+  /users/{name}/user-comments/{commentId}/replies:
     get:
       summary: "List replies to a comment on a user profile"
       description: ""
@@ -664,7 +664,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/user-comments/{id}/edit:
+  /users/{name}/user-comments/{commentId}/edit:
     put:
       summary: "Edit a comment on a user profile"
       description: ""
@@ -713,7 +713,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/user-comments/{id}/delete:
+  /users/{name}/user-comments/{commentId}/delete:
     delete:
       summary: "Delete a comment on a user profile"
       description: ""
@@ -780,7 +780,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/post-comments/{id}:
+  /users/{name}/post-comments/{commentId}:
     get:
       summary: "List comments on a post by a user"
       description: ""
@@ -875,7 +875,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}:
+  /users/{name}/posts/{postId}:
     get:
       summary: "Get a post by a user"
       description: ""
@@ -905,7 +905,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/edit:
+  /users/{name}/posts/{postId}/edit:
     put:
       summary: "Edit a post by a user"
       description: ""
@@ -956,7 +956,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/delete:
+  /users/{name}/posts/{postId}/delete:
     delete:
       summary: "Delete a post by a user"
       description: ""
@@ -998,7 +998,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments:
+  /users/{name}/posts/{postId}/comments:
     get:
       summary: "List comments on a post by a user"
       description: ""
@@ -1028,7 +1028,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments/create:
+  /users/{name}/posts/{postId}/comments/create:
     post:
       summary: "Post a comment on a post by a user"
       description: ""
@@ -1071,7 +1071,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments/{commentId}:
+  /users/{name}/posts/{postId}/comments/{commentId}:
     get:
       summary: "Get a comment on a post by a user"
       description: ""
@@ -1106,7 +1106,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments/{commentId}/reply:
+  /users/{name}/posts/{postId}/comments/{commentId}/reply:
     post:
       summary: "Reply to a comment on a post by a user"
       description: ""
@@ -1154,7 +1154,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments/{commentId}/replies:
+  /users/{name}/posts/{postId}/comments/{commentId}/replies:
     get:
       summary: "List replies to a comment on a post by a user"
       description: ""
@@ -1189,7 +1189,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments/{commentId}/edit:
+  /users/{name}/posts/{postId}/comments/{commentId}/edit:
     put:
       summary: "Edit a comment on a post by a user"
       description: ""
@@ -1243,7 +1243,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /users/{name}/posts/{id}/comments/{commentId}/delete:
+  /users/{name}/posts/{postId}/comments/{commentId}/delete:
     delete:
       summary: "Delete a comment on a post by a user"
       description: ""
@@ -1442,7 +1442,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
         
-  /posts/{id}:
+  /posts/{postId}:
     get:
       summary: "Get your post"
       description: ""
@@ -1458,7 +1458,7 @@ paths:
           description: ""
         '404':
           description: ""
-  /posts/{id}/edit:
+  /posts/{postId}/edit:
     put:
       summary: "Edit your post"
       description: ""
@@ -1494,7 +1494,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /posts/{id}/delete:
+  /posts/{postId}/delete:
     delete:
       summary: "Delete your post"
       description: ""
