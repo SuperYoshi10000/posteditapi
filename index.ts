@@ -550,6 +550,7 @@ app.use("/admin", async (req, res, next) => {
         });
         return;
     }
+    next();
 });
 app.all("/admin/query", async (req, res) => {
     query(client, res, req.query?.toString()).then(result => {
@@ -565,7 +566,10 @@ app.all("/admin/query", async (req, res) => {
 });
 
 app.use("/docs", express.static("docs"));
-
+app.use((req, res, next) => {
+    console.log(`Request: ${req.method} ${req.url} - ${req.body ? JSON.stringify(req.body) : "No body"}`);
+    next();
+});
 
 app.listen(port, async () => {
     console.log(`Server is running at http://localhost:${port}`);

@@ -173,7 +173,7 @@ paths:
                 $ref: "#/components/schemas/error"
 
   /auth/delete:
-    post:
+    delete:
       summary: "Delete your account"
       description: ""
       tags: [Account Management]
@@ -1546,4 +1546,11 @@ components:
         error:
           type: string
           description: Error message
-      
+  securitySchemes:
+    basicHttpAuthentication:
+      type: http
+      scheme: basic
+    bearerHTTPAuthentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
