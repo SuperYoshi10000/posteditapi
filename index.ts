@@ -1,9 +1,9 @@
 import express from "express";
+import bodyParser from "body-parser";
 import pg from "pg";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import { generateJwt, initDatabase, checkUserExists, checkUserAccountAuth, query, checkCorrectUser, checkUserAuth, queryResultOrElse, getUserFromAuth, requireValue, checkAuthentication } from "./util.ts";
-import { absolutePath } from "swagger-ui-dist";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -18,6 +18,13 @@ const db = new pg.Pool({
 });
 let client: pg.PoolClient;
 
+
+app.use(express.json());
+app.use("/docs", express.static("docs"));
+app.use((req, res, next) => {
+    console.log(`Request: ${req.method} ${req.url} - ${req.body ? JSON.stringify(req.body) : "No body"}`);
+    next();
+});
 
 app.get("/", (req, res) => {
     res.send({
@@ -565,11 +572,6 @@ app.all("/admin/query", async (req, res) => {
     });
 });
 
-app.use("/docs", express.static("docs"));
-app.use((req, res, next) => {
-    console.log(`Request: ${req.method} ${req.url} - ${req.body ? JSON.stringify(req.body) : "No body"}`);
-    next();
-});
 
 app.listen(port, async () => {
     console.log(`Server is running at http://localhost:${port}`);

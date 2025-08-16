@@ -10,8 +10,7 @@ export async function initDatabase(client: pg.PoolClient) {
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             email VARCHAR(100) NOT NULL UNIQUE,
-            password_hash VARCHAR(100) NOT NULL,
-            api_key VARCHAR(100) NOT NULL UNIQUE
+            password_hash VARCHAR(100) NOT NULL
         );
     `).catch(err => console.error("Error creating users table", err));
 
