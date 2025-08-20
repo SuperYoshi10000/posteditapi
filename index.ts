@@ -56,7 +56,11 @@ app.get("/users/:name", async (req, res) => {
     const {rows: [user]} = await queryResultOrElse(client, res, "SELECT * FROM users WHERE name = $1", [name], `No user found with name ${name}`);
     res.send({
         message: `User with name ${name} found`,
-        user
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        }
     }); 
 });
 
