@@ -43,7 +43,11 @@ app.get("/users", async (req, res) => {
     const {rows: users} = await query(client, res, "SELECT * FROM users");
     res.send({
         message: "List of users",
-        users
+        users: users.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        }))
     });
 });
 
