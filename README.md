@@ -7,7 +7,7 @@ For actions that affect your account (password change, deleting), you will need 
 For all other POST, PUT, and DELETE requests, you will need to send authentication using a JWT token that you can get at `/users/login` or `/users/{name}/reset-jwt-token`.
 
 ## Routes
-See http://api.postedit.mitchk.hackclub.app:34313/docs for more info.
+See http://api.postedit.mitchk.hackclub.app/docs for more info.
 
 Root
 - GET	/
