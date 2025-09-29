@@ -53,6 +53,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+
+  /account/user-info:
+    get:
+      summary: Get your user info
+      description: ""
+      tags: [Users]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
         
   /auth/register:
     post:
@@ -155,6 +174,39 @@ paths:
             schema:
               properties:
                 name:
+                  type: string
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        '401':
+          description: Not authenticated or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /auth/set-email:
+    post:
+      summary: "Set your email"
+      description: ""
+      tags: [Account Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                email:
                   type: string
                 password:
                   type: string

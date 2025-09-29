@@ -1,5 +1,4 @@
-import express from "express";
-import bodyParser from "body-parser";
+import express, { Request, Response } from "express";
 import pg from "pg";
 import bcrypt from "bcrypt";
 import "dotenv/config";
@@ -60,6 +59,21 @@ app.get("/users/:name", async (req, res) => {
             id: user.id,
             name: user.name,
             email: user.email,
+            is_admin: user.is_admin,
+            permissions: user.permissions
+        }
+    }); 
+});
+app.get("/account/user-info", async (req, res) => {
+    const [{rows: [user]}, userId] = await getUserFromAuth(client, req, res);
+    res.send({
+        message: `User with id ${userId} found`,
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            is_admin: user.is_admin,
+            permissions: user.permissions
         }
     }); 
 });
@@ -118,21 +132,38 @@ app.post("/auth/reset-jwt-token", async (req, res) => {
 });
 app.post("/auth/set-password", async (req, res) => {
     const { name, oldPassword, newPassword } = req.body;
-    await checkUserAccountAuth(client, name, oldPassword, res);
+    const [,userId] = await checkUserAccountAuth(client, name, oldPassword, res);
     const newPasswordHash = bcrypt.hashSync(newPassword, 10);
-    await queryResultOrElse(client, res, "UPDATE users SET password_hash = $1 WHERE name = $2", [newPasswordHash, name], `No user found with name ${name}`);
+    await queryResultOrElse(client, res, "UPDATE users SET password_hash = $1 WHERE id = $2", [newPasswordHash, userId], `No user found with name ${name}`);
     res.send({
         message: `Password for user ${name} updated`
     });
 });
+app.post("/auth/set-email", async (req, res) => {
+    const { name, password, newEmail } = req.body;
+    let userId: string;
+    if (req.headers.authorization) [,userId] = await getUserFromAuth(client, req, res);
+    else [,userId] = await checkUserAccountAuth(client, name, password, res);
+    await queryResultOrElse(client, res, "UPDATE users SET email = $1 WHERE id = $2", [newEmail, userId], `No user found with name ${name}`);
+    res.send({
+        message: `Email for user ${name} updated`,
+        email: newEmail
+    });
+});
+
 app.delete("/auth/delete", async (req, res) => {
     const { name, password } = req.body;
-    const [,userId] = await checkUserAccountAuth(client, name, password, res);
-    await query(client, res, "DELETE FROM users WHERE name = $1", [name]);
+    const [,pwid] = await checkUserAccountAuth(client, name, password, res);
+    const [,authid] = (await getUserFromAuth(client, req, res))[1];
+    checkCorrectUser(res, pwid, authid, "You can only delete your own account");
+    await query(client, res, "DELETE FROM users WHERE id = $1", [pwid]);
     res.send({
         message: `User with name ${name} deleted`
     });
 });
+
+
+
 app.post("/users/:name/auth/reset-jwt-token", async (req, res) => {
     const { name } = req.params;
     const { password } = req.body;
@@ -184,13 +215,13 @@ app.get("/users/:name/posts", async (req, res) => {
 
 app.post("/users/:name/profile/create", async (req, res) => {
     const { name } = req.params;
-    const { displayName, bio, about, profilePictureUrl } = req.body;
+    const { display_name, bio, about, profile_picture_url } = req.body;
     const [,userId] = await checkUserExists(client, name, res);
     // check api key here
     const currentUserId = userId; // Assuming the current user is the one creating the profile (temporarily using user.id as currentUserId, adjust as needed)
-    if (!checkCorrectUser(res, userId, currentUserId, "create a profile for yourself")) return;
+    if (!checkCorrectUser(res, userId, currentUserId, "You can only create a profile for yourself")) return;
     
-    let {rows: [profile]} = await query(client, res, "INSERT INTO profiles (owner, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, displayName, bio, about, profilePictureUrl]);
+    let {rows: [profile]} = await query(client, res, "INSERT INTO profiles (owner, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, display_name, bio, about, profile_picture_url]);
     res.send({
         message: `Profile for user ${name} created`,
         profile
@@ -207,21 +238,21 @@ app.get("/users/:name/profile", async (req, res) => {
 });
 app.put("/users/:name/profile/edit", async (req, res) => {
     const { name } = req.params;
-    const { displayName, bio, about, profilePictureUrl } = req.body;
+    const { display_name, bio, about, profile_picture_url } = req.body;
     const [,userId, currentUserId] = await checkUserAuth(client, name, req, res, "update your own profile", false);
-    if (!checkCorrectUser(res, userId, currentUserId, "update your own profile")) return;
+    if (!checkCorrectUser(res, userId, currentUserId, "You can only update your own profile")) return;
     let queryFields: string[] = [];
-    if ("displayName" in req.body) queryFields.push("display_name = $1");
+    if ("display_name" in req.body) queryFields.push("display_name = $1");
     if ("bio" in req.body) queryFields.push("bio = $2");
     if ("about" in req.body) queryFields.push("about = $3");
-    if ("profilePictureUrl" in req.body) queryFields.push("profile_picture_url = $4");
+    if ("profile_picture_url" in req.body) queryFields.push("profile_picture_url = $4");
     if (queryFields.length === 0) {
         res.status(400).send({
             error: "No fields to update"
         });
         return;
     }
-    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE owner = $5 RETURNING *`, [displayName, bio, about, profilePictureUrl, userId], `No profile found for user ${name}`);
+    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE owner = $5 RETURNING *`, [display_name, bio, about, profile_picture_url, userId], `No profile found for user ${name}`);
     res.send({
         message: `Profile for user ${name} updated`,
         profile
@@ -229,7 +260,7 @@ app.put("/users/:name/profile/edit", async (req, res) => {
 });
 app.delete("/users/:name/profile/delete", async (req, res) => {
     const { name } = req.params;
-    const [,userId] = await checkUserAuth(client, name, req, res, "delete your own profile", true);
+    const [,userId] = await checkUserAuth(client, name, req, res, "You can only delete your own profile", true);
     await query(client, res, "DELETE FROM profiles WHERE owner = $1", [userId]);
     res.send({
         message: `Profile for user ${name} deleted`
@@ -291,8 +322,6 @@ app.get("/users/:name/user-comments/:commentId/replies", async (req, res) => {
         replies
     });
 });
-
-
 app.put("/users/:name/user-comments/:commentId/edit", async (req, res) => {
     const { name, commentId } = req.params;
     const { content } = req.body;
@@ -346,29 +375,29 @@ app.get("/profile", async (req, res) => {
 });
 app.post("/profile/create", async (req, res) => {
     const [,userId] = await getUserFromAuth(client, req, res);
-    const { displayName, bio, about, profilePictureUrl } = req.body;
-    requireValue(displayName, res, "Display name is required");
-    const {rows: [profile]} = await query(client, res, "INSERT INTO profiles (owner, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, displayName, bio, about, profilePictureUrl]);
+    const { display_name, bio, about, profile_picture_url } = req.body;
+    requireValue(display_name, res, "Display name is required");
+    const {rows: [profile]} = await query(client, res, "INSERT INTO profiles (owner, display_name, bio, about, profile_picture_url) VALUES ($1, $2, $3, $4, $5) RETURNING *", [userId, display_name, bio, about, profile_picture_url]);
     res.send({
         message: `Profile for user ${userId} created`,
         profile
     });
 });
 app.put("/profile/edit", async (req, res) => {
-    const { displayName, bio, about, profilePictureUrl } = req.body;
+    const { display_name, bio, about, profile_picture_url } = req.body;
     const [,userId] = await getUserFromAuth(client, req, res);
     let queryFields: string[] = [];
-    if ("displayName" in req.body) queryFields.push("display_name = $1");
+    if ("display_name" in req.body) queryFields.push("display_name = $1");
     if ("bio" in req.body) queryFields.push("bio = $2");
     if ("about" in req.body) queryFields.push("about = $3");
-    if ("profilePictureUrl" in req.body) queryFields.push("profile_picture_url = $4");
+    if ("profile_picture_url" in req.body) queryFields.push("profile_picture_url = $4");
     if (queryFields.length === 0) {
         res.status(400).send({
             error: "No fields to update"
         });
         return;
     }
-    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE owner = $5 RETURNING *`, [displayName, bio, about, profilePictureUrl, userId], `No profile found for user ${userId}`);
+    const {rows: [profile]} = await queryResultOrElse(client, res, `UPDATE profiles SET ${queryFields.join(", ")} WHERE owner = $5 RETURNING *`, [display_name, bio, about, profile_picture_url, userId], `No profile found for user ${userId}`);
     res.send({
         message: `Profile for user ${userId} updated`,
         profile
@@ -402,26 +431,26 @@ app.get("/posts/:postId", async (req, res) => {
     });
 });
 app.post("/posts/create", async (req, res) => {
-    const { postName, content } = req.body;
+    const { title, content } = req.body;
     const [,userId] = await getUserFromAuth(client, req, res);
-    requireValue(postName, res, "Post name is required");
+    requireValue(title, res, "Post name is required");
     requireValue(content, res, "Content is required");
-    const {rows: [post]} = await query(client, res, "INSERT INTO posts (author, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, postName, content]);
+    const {rows: [post]} = await query(client, res, "INSERT INTO posts (author, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, title, content]);
     res.send({
-        message: `Created post with name ${postName}`,
+        message: `Created post with name ${title}`,
         post
     });
 });
 app.put("/posts/:postId/edit", async (req, res) => {
     const { postId } = req.params;
-    const { postName, content } = req.body;
+    const { title, content } = req.body;
     const [,userId] = await getUserFromAuth(client, req, res);
-    requireValue(postName || content, res, "At least one of post name or content is required to update");
-    let query = postName ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $1";
+    requireValue(title || content, res, "At least one of post name or content is required to update");
+    let query = title ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $1";
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id}`);
-    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [postName, content, userId, postId], `No post found with ID ${postId}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [title, content, userId, postId], `No post found with ID ${postId}`);
     res.send({
-        message: `Updated post with ID ${postId} and name ${postName}`,
+        message: `Updated post with ID ${postId} and name ${title}`,
         post
     });
 });
@@ -439,11 +468,11 @@ app.delete("/posts/:postId/delete", async (req, res) => {
 
 app.post("/users/:name/posts/create", async (req, res) => {
     const { name } = req.params;
-    const { postName, content } = req.body;
+    const { title, content } = req.body;
     const [,userId] = await checkUserAuth(client, name, req, res, "create a post while logged in", true, () => {});
-    requireValue(postName, res, "Post name is required");
+    requireValue(title, res, "Post name is required");
     requireValue(content, res, "Content is required");
-    const {rows: [post]} = await query(client, res, "INSERT INTO posts (author, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, postName, content]);
+    const {rows: [post]} = await query(client, res, "INSERT INTO posts (author, title, content) VALUES ($1, $2, $3) RETURNING *", [userId, title, content]);
     res.send({
         message: `Created post with user ${name}`,
         post
@@ -460,14 +489,14 @@ app.get("/users/:name/posts/:postId", async (req, res) => {
 });
 app.put("/users/:name/posts/:postId/edit", async (req, res) => {
     const { name, postId } = req.params;
-    const { postName, content } = req.body;
+    const { title, content } = req.body;
     const [,userId] = await checkUserAuth(client, name, req, res, "edit a post while logged in", true);
-    requireValue(postName || content, res, "At least one of post name or content is required to update");
-    let query = postName ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $2";
+    requireValue(title || content, res, "At least one of post name or content is required to update");
+    let query = title ? ("title = $1" + (content ? ", content = $2" : "")) : "content = $2";
     // await queryResultOrElse(client, res, "SELECT * FROM posts WHERE user = $1 AND id = $2", [userId, id], `No post found with ID ${id} for user ${name}`);
-    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [postName, content, userId, postId], `No post found with ID ${postId}`);
+    const {rows: [post]} = await queryResultOrElse(client, res, `UPDATE posts SET ${query} WHERE author = $3 AND id = $4 RETURNING *`, [title, content, userId, postId], `No post found with ID ${postId}`);
     res.send({
-        message: `Updated post with ID ${postId} and name ${postName}`,
+        message: `Updated post with ID ${postId} and name ${title}`,
         post
     });
 });
@@ -496,7 +525,7 @@ app.get("/users/:name/posts/:postId/comments", async (req, res) => {
 app.post("/users/:name/posts/:postId/comments/create", async (req, res) => {
     const { name, postId } = req.params;
     const { content } = req.body;
-    const [,,currentUserId] = await checkUserAuth(client, name, req, res, "add a comment while logged in", false);
+    const [,,currentUserId] = await checkUserAuth(client, name, req, res, "You can only add a comment while logged in", false);
     requireValue(content, res, "Content is required for the comment");
     const {rows: [comment]} = await query(client, res, "INSERT INTO comments (post, author, content) VALUES ($1, $2, $3) RETURNING *", [postId, currentUserId, content]);
     res.send({
@@ -568,9 +597,16 @@ app.use("/admin", async (req, res, next) => {
     next();
 });
 app.all("/admin/query", async (req, res) => {
-    query(client, res, req.query?.toString()).then(result => {
+    let queryStr = req.query.query?.toString();
+    if (queryStr === undefined) {
+        res.status(400).send({
+            error: "Query is required"
+        });
+        return;
+    }
+    query(client, res, queryStr).then(result => {
         res.send({
-            message: "Query executed",
+            message: `Query executed: ${queryStr}`,
             result
         });
     }, err => {
@@ -579,7 +615,33 @@ app.all("/admin/query", async (req, res) => {
         });
     });
 });
-
+// app.all("/admin/as-user", async (req, res) => {
+//     const { url } = req.query;
+//     const [,actingAsUserId, userId] = await getUserFromAuth(client, req, res);
+//     req.path = url;
+//     (app as unknown as {handle(req: Request, res: Response)}).handle(req, res);
+// });
+app.post("/admin/auth/set-permission", async (req, res) => {
+    const { userId, permissions: setPermissions } = req.body;
+    const { rows: [{permissions: currentPermissions}] } = await queryResultOrElse(client, res, "SELECT permissions FROM users WHERE id = $1", [userId], `No user found with ID ${userId}`);
+    const permissions = Object.keys(setPermissions);
+    const addPermissions = Object.keys(permissions).filter(p => setPermissions[p] === true && !currentPermissions.includes(p));
+    const removePermissions = Object.keys(permissions).filter(p => setPermissions[p] === false);
+    const newPermissions = currentPermissions.concat(addPermissions).filter(p => !removePermissions.includes(p));
+    await queryResultOrElse(client, res, "UPDATE users SET permissions = $1 WHERE id = $2", [newPermissions, userId], `No user found with ID ${userId}`);
+    res.send({
+        message: `Permissions updated for user with ID ${userId}`,
+        permissions: newPermissions
+    });
+});
+app.post("/admin/auth/set-admin", async (req, res) => {
+    const { userId, isAdmin } = req.body;
+    await queryResultOrElse(client, res, "UPDATE users SET is_admin = $1 WHERE id = $2", [isAdmin, userId], `No user found with ID ${userId}`);
+    res.send({
+        message: `Admin status updated to ${isAdmin} for user with ID ${userId}`,
+        isAdmin
+    })
+});
 
 app.listen(port, async () => {
     console.log(`Server is running at http://localhost:${port}`);
