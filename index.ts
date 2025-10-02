@@ -643,6 +643,12 @@ app.post("/admin/auth/set-admin", async (req, res) => {
     })
 });
 
+app.use((req, res, next) => {
+    let origin = req.get("X-Client-Origin");
+    if (origin) res.set("Access-Control-Allow-Origin", origin);
+    next();
+});
+
 app.listen(port, async () => {
     console.log(`Server is running at http://localhost:${port}`);
     client = await db.connect().catch(err => {
