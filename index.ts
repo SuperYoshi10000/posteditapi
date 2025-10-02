@@ -21,8 +21,11 @@ let client: pg.PoolClient;
 app.use(express.json());
 app.use("/docs", express.static("docs"));
 app.use((req, res, next) => {
-    console.log(`Request: ${req.method} ${req.url} - ${req.body ? JSON.stringify(req.body) : "No body"}`);
+    console.log(`>>> ${req.method} ${req.url} - ${req.body ? JSON.stringify(req.body) : "No body"}`);
+    let origin = req.get("X-Client-Origin");
+    if (origin) res.set("Access-Control-Allow-Origin", req.get("Authorization") ? origin : "*");
     next();
+    console.log(`<<< ${res.statusCode} ${res.statusMessage || ""} - [${res.get("Content-Type") || "application/json"}]`);
 });
 
 app.get("/", (req, res) => {
@@ -641,12 +644,6 @@ app.post("/admin/auth/set-admin", async (req, res) => {
         message: `Admin status updated to ${isAdmin} for user with ID ${userId}`,
         isAdmin
     })
-});
-
-app.use((req, res, next) => {
-    let origin = req.get("X-Client-Origin");
-    if (origin) res.set("Access-Control-Allow-Origin", origin);
-    next();
 });
 
 app.listen(port, async () => {
