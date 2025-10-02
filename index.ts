@@ -22,10 +22,12 @@ app.use(express.json());
 app.use("/docs", express.static("docs"));
 app.use((req, res, next) => {
     console.log(`>>> ${req.method} ${req.url} - ${req.body ? JSON.stringify(req.body) : "No body"}`);
+    console.debug(req.rawHeaders);
     let origin = req.get("X-Client-Origin");
     if (origin) res.set("Access-Control-Allow-Origin", req.get("Authorization") ? origin : "*");
     next();
     console.log(`<<< ${res.statusCode} ${res.statusMessage || ""} - [${res.get("Content-Type") || "application/json"}]`);
+    console.debug(res.getHeaders());
 });
 
 app.get("/", (req, res) => {
